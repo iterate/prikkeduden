@@ -10,7 +10,7 @@ WORKDIR /app
 COPY elm.json .
 COPY src src
 RUN elm make src/Main.elm --optimize --output=out/app.js
-COPY out/index.html out
+COPY out/* out
 
 
 FROM nginx:1.15.12-alpine
