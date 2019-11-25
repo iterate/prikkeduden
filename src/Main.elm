@@ -5,6 +5,7 @@ import Canvas
 import Html exposing (Html, div)
 import Html.Attributes
 import Html.Events
+import List.Extra
 
 
 main : Program () Model Msg
@@ -33,7 +34,7 @@ type Msg
 view : Model -> Html Msg
 view m =
     Html.div
-        [ Html.Attributes.style "background-color" "#dc5052"
+        [ Html.Attributes.style "background-color" ""
         , Html.Attributes.style "margin" "0"
         , Html.Attributes.style "padding" "10px"
         ]
@@ -45,10 +46,10 @@ update msg model =
     case msg of
         SetImageData s ->
             let
-                ss =
-                    Debug.log "imagedata" s
+                new =
+                    fuckitup s
             in
-            ( model, Canvas.putImageData s )
+            ( model, Canvas.putImageData new )
 
         Act ->
             ( model, Canvas.getImageData () )
@@ -64,3 +65,29 @@ init _ =
     ( ""
     , Cmd.none
     )
+
+
+fuckitup : List Int -> List Int
+fuckitup ints =
+    fuck [] ints |> List.reverse
+
+
+fuck : List Int -> List Int -> List Int
+fuck outs ints =
+    case ints of
+        [ r, g, b, a ] ->
+            honk a b g r ++ outs
+
+        r :: g :: b :: a :: rest ->
+            fuck (honk a b g r ++ outs) rest
+
+        [] ->
+            []
+
+        _ ->
+            Debug.todo "WRONG"
+
+
+honk : Int -> Int -> Int -> Int -> List Int
+honk a b g r =
+    [ r, 255, 255, 255 ]

@@ -6,6 +6,7 @@
     <style type="text/css">
       body {
         margin: 0;
+        background-color: #dc5052;
       }
     </style>
     <script type="text/javascript" src="app.js"></script>
@@ -50,6 +51,7 @@
       });
 
       app.ports.putImageData.subscribe(function(data) {
+        console.log("gotten", data);
         var u8a = new Uint8ClampedArray(data);
         var id = new ImageData(u8a, img.width, img.height);
         outctx.putImageData(id, 0, 0);
