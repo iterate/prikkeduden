@@ -2,7 +2,7 @@ FROM node:10
 
 ENV NODE_ENV production
 
-RUN yarn global add elm
+RUN yarn global add elm@1.19.0
 
 RUN mkdir /app
 WORKDIR /app
