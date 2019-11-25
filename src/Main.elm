@@ -69,17 +69,25 @@ init _ =
 
 fuckitup : List Int -> List Int
 fuckitup ints =
-    fuck [] ints |> List.reverse
+    fuck [] 0 ints |> List.reverse
 
 
-fuck : List Int -> List Int -> List Int
-fuck outs ints =
+fuck : List Int -> Int -> List Int -> List Int
+fuck outs error ints =
     case ints of
         [ r, g, b, a ] ->
-            honk a b g r ++ outs
+            let
+                ( abgr, nerror ) =
+                    honk a b g r error
+            in
+            abgr ++ outs
 
         r :: g :: b :: a :: rest ->
-            fuck (honk a b g r ++ outs) rest
+            let
+                ( abgr, nerror ) =
+                    honk a b g r error
+            in
+            fuck (abgr ++ outs) nerror rest
 
         [] ->
             []
@@ -88,6 +96,22 @@ fuck outs ints =
             []
 
 
-honk : Int -> Int -> Int -> Int -> List Int
-honk a b g r =
-    [ r, 255, 255, 255 ]
+honk : Int -> Int -> Int -> Int -> Int -> ( List Int, Int )
+honk a b g r error =
+    let
+        gray =
+            r + b // 2
+
+        witherror =
+            gray + error
+
+        mono =
+            \x -> ((x |> toFloat) / 256 |> round) * 256
+
+        monoavg =
+            mono witherror
+
+        newerror =
+            witherror - monoavg
+    in
+    ( [ monoavg, 255, 255, 255 ], newerror )
