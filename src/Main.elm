@@ -85,7 +85,7 @@ fuck outs ints =
             []
 
         _ ->
-            Debug.todo "WRONG"
+            []
 
 
 honk : Int -> Int -> Int -> Int -> List Int
