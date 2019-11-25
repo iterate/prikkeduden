@@ -1,11 +1,10 @@
-module Main exposing (Model, Msg, init, subscriptions, update, view)
+module Main exposing (main)
 
 import Browser
 import Canvas
 import Html exposing (Html, div)
 import Html.Attributes
 import Html.Events
-import List.Extra
 
 
 main : Program () Model Msg
@@ -32,7 +31,7 @@ type Msg
 
 
 view : Model -> Html Msg
-view m =
+view _ =
     Html.div
         [ Html.Attributes.style "background-color" ""
         , Html.Attributes.style "margin" "0"
@@ -77,7 +76,7 @@ fuck outs error ints =
     case ints of
         [ r, g, b, a ] ->
             let
-                ( abgr, nerror ) =
+                ( abgr, _ ) =
                     honk a b g r error
             in
             abgr ++ outs
@@ -97,7 +96,7 @@ fuck outs error ints =
 
 
 honk : Int -> Int -> Int -> Int -> Int -> ( List Int, Int )
-honk a b g r error =
+honk _ b _ r error =
     let
         gray =
             r + b // 2

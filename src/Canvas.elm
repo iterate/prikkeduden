@@ -1,4 +1,4 @@
-port module Canvas exposing (..)
+port module Canvas exposing (getImageData, putImageData, setImageData)
 
 
 port getImageData : () -> Cmd msg
