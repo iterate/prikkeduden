@@ -8,17 +8,17 @@
         margin: 0;
         background-color: #dc5052;
       }
+      canvas {
+        image-rendering: crisp-edges;
+      }
     </style>
-    <script type="text/javascript" src="app.js"></script>
   </head>
   <body>
     <main></main>
     <canvas id="input"></canvas>
     <canvas id="output"></canvas>
     <script>
-      var app = Elm.Main.init({ node: document.querySelector("main") });
-
-      var imgUrl = "bob.jpg";
+      var imgUrl = "konsp.jpg";
 
       var inputCanvas = document.getElementById("input");
       var outputCanvas = document.getElementById("output");
@@ -28,33 +28,48 @@
       var img = new Image();
       img.src = imgUrl;
       img.onload = () => {
-        inputCanvas.height = img.height;
-        inputCanvas.width = img.width;
-        outputCanvas.height = img.height;
-        outputCanvas.width = img.width;
+        const width = img.width;
+        const height = img.height;
+
+        inputCanvas.height = height;
+        inputCanvas.width = width;
+        outputCanvas.height = height;
+        outputCanvas.width = width;
         ctx.drawImage(img, 0, 0);
+
+        var data = ctx.getImageData(0, 0, width, height).data;
+
+        var error = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          // READ
+          let r = data[i + 0];
+          let g = data[i + 1];
+          let b = data[i + 2];
+          let a = data[i + 3];
+
+          // FIGHT
+
+          let gray = (r + g + b / 3) << 0;
+          let grayerror = gray + error;
+          let monograyerror = Math.round(grayerror / 256) * 256;
+          error = grayerror - monograyerror;
+
+          let R = 255;
+          let G = 255;
+          let B = 255;
+          let A = monograyerror;
+
+          // WRITE
+          data[i + 0] = R;
+          data[i + 1] = G;
+          data[i + 2] = B;
+          data[i + 3] = A;
+        }
+
+        var imageData = new ImageData(data, width, height);
+        outctx.putImageData(imageData, 0, 0);
       };
-      // img.style.display = "none";
-
-      app.ports.getImageData.subscribe(function(data) {
-        console.log("GET IMAGE, DATA!");
-        var imageData = ctx.getImageData(
-          0,
-          0,
-          inputCanvas.width,
-          inputCanvas.height
-        );
-        var data = imageData.data;
-
-        app.ports.setImageData.send(Array.from(data));
-      });
-
-      app.ports.putImageData.subscribe(function(data) {
-        console.log("gotten", data);
-        var u8a = new Uint8ClampedArray(data);
-        var id = new ImageData(u8a, img.width, img.height);
-        outctx.putImageData(id, 0, 0);
-      });
     </script>
   </body>
 </html>
