@@ -6,10 +6,16 @@
     <style type="text/css">
       body {
         margin: 0;
-        background-color: #dc5052;
+        /* background-color: #dc5052; */
       }
       canvas {
         image-rendering: crisp-edges;
+      }
+      canvas#input {
+        display: none;
+      }
+      canvas#output {
+        background-color: #dc5052;
       }
     </style>
   </head>
@@ -37,38 +43,42 @@
         outputCanvas.width = width;
         ctx.drawImage(img, 0, 0);
 
-        var data = ctx.getImageData(0, 0, width, height).data;
+        function draw(timestamp) {
+          var data = ctx.getImageData(0, 0, width, height).data;
+          var error = timestamp % 256 << 0;
 
-        var error = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            // READ
+            let r = data[i + 0];
+            let g = data[i + 1];
+            let b = data[i + 2];
+            let a = data[i + 3];
 
-        for (let i = 0; i < data.length; i += 4) {
-          // READ
-          let r = data[i + 0];
-          let g = data[i + 1];
-          let b = data[i + 2];
-          let a = data[i + 3];
+            // FIGHT
 
-          // FIGHT
+            let gray = (r + g + b / 3) << 0;
+            let grayerror = gray + error;
+            let monograyerror = Math.round(grayerror / 256) * 256;
+            error = grayerror - monograyerror;
 
-          let gray = (r + g + b / 3) << 0;
-          let grayerror = gray + error;
-          let monograyerror = Math.round(grayerror / 256) * 256;
-          error = grayerror - monograyerror;
+            let R = 255;
+            let G = 255;
+            let B = 255;
+            let A = monograyerror;
 
-          let R = 255;
-          let G = 255;
-          let B = 255;
-          let A = monograyerror;
+            // WRITE
+            data[i + 0] = R;
+            data[i + 1] = G;
+            data[i + 2] = B;
+            data[i + 3] = A;
+          }
 
-          // WRITE
-          data[i + 0] = R;
-          data[i + 1] = G;
-          data[i + 2] = B;
-          data[i + 3] = A;
+          var imageData = new ImageData(data, width, height);
+          outctx.putImageData(imageData, 0, 0);
+
+          window.requestAnimationFrame(draw);
         }
-
-        var imageData = new ImageData(data, width, height);
-        outctx.putImageData(imageData, 0, 0);
+        window.requestAnimationFrame(draw);
       };
     </script>
   </body>
