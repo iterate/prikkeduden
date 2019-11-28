@@ -20,10 +20,13 @@
     </style>
   </head>
   <body>
-    <main></main>
+    <button id="ants">Ants</button>
+    <button id="noise">Noise</button>
+    <br />
     <canvas id="input"></canvas>
     <canvas id="output"></canvas>
     <script>
+      var script;
       var imgUrl = "konsp.jpg";
 
       var inputCanvas = document.getElementById("input");
@@ -43,9 +46,11 @@
         outputCanvas.width = width;
         ctx.drawImage(img, 0, 0);
 
-        function draw(timestamp) {
+        var inputData = ctx.getImageData(0, 0, width, height).data;
+
+        function draw_ants(timestamp) {
           var data = ctx.getImageData(0, 0, width, height).data;
-          var error = timestamp % 256 << 0;
+          var error = (timestamp / 10) % 256 << 0;
 
           for (let i = 0; i < data.length; i += 4) {
             // READ
@@ -76,9 +81,63 @@
           var imageData = new ImageData(data, width, height);
           outctx.putImageData(imageData, 0, 0);
 
-          window.requestAnimationFrame(draw);
+          window.requestAnimationFrame(script);
         }
-        window.requestAnimationFrame(draw);
+
+        function getRandomInt(max) {
+          return Math.floor(Math.random() * Math.floor(max));
+        }
+
+        function draw_noise(timestamp) {
+          var data = ctx.getImageData(0, 0, width, height).data;
+          var error = (timestamp / 10) % 256 << 0;
+          error = 0;
+
+          for (let i = 0; i < data.length; i += 4) {
+            // READ
+            let r = data[i + 0];
+            let g = data[i + 1];
+            let b = data[i + 2];
+            let a = data[i + 3];
+
+            // FIGHT
+
+            let gray = (r + g + b / 3) << 0;
+            let grayerror = gray + error + (getRandomInt(255) - 128);
+            let monograyerror = Math.round(grayerror / 256) * 256;
+            error = grayerror - monograyerror;
+
+            let R = 255;
+            let G = 255;
+            let B = 255;
+            let A = monograyerror;
+
+            // WRITE
+            data[i + 0] = R;
+            data[i + 1] = G;
+            data[i + 2] = B;
+            data[i + 3] = A;
+          }
+
+          var imageData = new ImageData(data, width, height);
+          outctx.putImageData(imageData, 0, 0);
+
+          window.requestAnimationFrame(script);
+        }
+
+        var setAnts = () => {
+          script = draw_ants;
+        };
+
+        var setNoise = () => {
+          script = draw_noise;
+        };
+
+        document.getElementById("ants").onclick = setAnts;
+        document.getElementById("noise").onclick = setNoise;
+
+        setNoise();
+        window.requestAnimationFrame(script);
       };
     </script>
   </body>
